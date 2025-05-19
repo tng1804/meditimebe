@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    container_name: laravel_app
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "9000:9000"
+    environment:
+      - APP_NAME=${APP_NAME:-Laravel}
+      - APP_ENV=${APP_ENV:-local}
+      - APP_DEBUG=${APP_DEBUG:-true}
+      - APP_URL=${APP_URL:-http://localhost}
+      - LOG_CHANNEL=${LOG_CHANNEL:-stack}
+      - DB_CONNECTION=${DB_CONNECTION:-mysql}
+      - DB_HOST=${DB_HOST:-mysql}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_DATABASE=${DB_DATABASE:-laravel}
+      - DB_USERNAME=${DB_USERNAME:-laraveluser}
+      - DB_PASSWORD=${DB_PASSWORD:-laravelpassword}
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+
+  mysql:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile-mysql
+    container_name: mysql_db
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=laravel
+      - MYSQL_USER=laraveluser
+      - MYSQL_PASSWORD=laravelpassword
+    networks:
+      - app-network
+
+  webserver:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile-apache
+    container_name: apache_webserver
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/vhost.conf:/usr/local/apache2/conf/vhost.conf
+      - ./docker/httpd.conf:/usr/local/apache2/conf/httpd.conf
+    depends_on:
+      - app
+    networks:
+      - app-network
+    links:
+      - app:app
+
+networks:
+  app-network:
+    driver: bridge

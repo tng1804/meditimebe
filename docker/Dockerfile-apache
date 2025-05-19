@@ -1,0 +1,29 @@
+FROM httpd:2.4-alpine
+
+# Cài đặt extension PHP cần thiết để giao tiếp với FPM
+RUN apk add --no-cache libzip-dev libpng-dev freetype-dev
+
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+
+RUN docker-php-ext-install zip gd mysqli pdo pdo_mysql
+
+# Bật module rewrite của Apache để Laravel có thể xử lý routes
+RUN a2enmod rewrite
+
+# Sao chép cấu hình VirtualHost của Apache
+COPY vhost.conf /usr/local/apache2/conf/vhost.conf
+
+# Xóa cấu hình mặc định của Apache
+RUN rm /usr/local/apache2/conf/httpd.conf
+
+# Sao chép file cấu hình Apache mới
+COPY httpd.conf /usr/local/apache2/conf/httpd.conf
+
+# Thiết lập thư mục làm việc của Apache
+WORKDIR /var/www/html
+
+# Sao chép mã nguồn Laravel (chúng ta sẽ mount volume thay vì copy trong Docker Compose)
+# COPY ../ .
+
+# Khai báo cổng mà Apache sẽ lắng nghe
+EXPOSE 80

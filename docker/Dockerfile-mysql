@@ -1,0 +1,10 @@
+FROM mysql:8.0
+
+# Thiết lập các biến môi trường cho MySQL
+ENV MYSQL_ROOT_PASSWORD=root
+ENV MYSQL_DATABASE=laravel
+ENV MYSQL_USER=laraveluser
+ENV MYSQL_PASSWORD=laravelpassword
+
+# Khai báo cổng mà MySQL sẽ lắng nghe
+EXPOSE 3306
