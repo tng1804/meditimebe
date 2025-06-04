@@ -12,8 +12,12 @@ class Doctor extends Model
 
     protected $fillable = [
         'user_id',
-        'specialty',
+        'specialty_id',
+        'phone',
+        'gender',
+        'date_of_birth',
         'license_number',
+        'status',
     ];
 
     // Mối quan hệ 1:1 với user
@@ -34,10 +38,18 @@ class Doctor extends Model
         return $this->hasMany(MedicalRecord::class);
     }
 
-    public function schedules()
+    public function schedule()
     {
-        return $this->hasMany(Schedule::class);
+        return $this->hasOne(DoctorSchedule::class);
     }
 
+    public function scheduleExceptions()
+    {
+        return $this->hasMany(ScheduleException::class);
+    }
+    public function specialty()
+    {
+        return $this->belongsTo(Specialty::class);
+    }
 
 }

@@ -28,7 +28,7 @@ class AuthController extends Controller
             'role' => $data['role'],
         ]);
 
-        UserRoleService::createUserByRole($user);
+        // UserRoleService::createUserByRole($user);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -51,6 +51,13 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Email or password is incorrect!'
             ], 401);
+        }
+
+         // Kiểm tra trạng thái tài khoản
+        if ($user->status === 0) {
+            return response()->json([
+                'message' => 'Tài khoản của bạn đã bị khóa.'
+            ], 403); // 403 Forbidden
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;

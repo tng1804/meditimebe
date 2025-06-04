@@ -24,6 +24,10 @@ class DoctorResource extends JsonResource
             ],
             'specialty'  => $this->specialty,
             'license_number'         => $this->license_number,
+            'phone'     => $this->phone,
+            'gender'    => $this->gender,
+            'date_of_birth'     => $this->date_of_birth,
+            'status'    => $this->status,
         ];
     }
 }
