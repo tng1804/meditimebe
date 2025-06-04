@@ -22,8 +22,10 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'avatar',
         'password',
         'role',
+        'status',
     ];
 
     /**
@@ -78,5 +80,45 @@ class User extends Authenticatable
 
     public function isPatient() {
         return $this->role === 'patient';
+    }
+
+    // Sử dụng Eloquent Event để tự động tạo bản ghi trong doctors
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            if ($user->isDoctor()) { // Chỉ tạo bác sĩ nếu user có role là 'doctor'
+                try {
+                        // Tự động tạo bản ghi trong bảng doctors khi user được tạo
+                        $user->doctor()->create([
+                            'specialty_id' => 0, // Giá trị mặc định
+                            'license_number' => 'TEMP-' . $user->id, // Giá trị tạm thời
+                            'phone' => '', // Giá trị mặc định
+                            'gender' => 'other', // Giá trị mặc định
+                            'date_of_birth' => now(), // Giá trị mặc định
+                            'status' => 'inactive', // Giá trị mặc định
+                        ]);
+                    } catch (\Exception $e) {
+                        Log::error('Failed to create doctor record for user ' . $user->id . ': ' . $e->getMessage());
+                        // Có thể rollback hoặc xử lý thêm nếu cần
+                }
+            }elseif($user->isPatient()){
+                $user->patient()->create([
+                    'date_of_birth' => now(),
+                    'gender' => 'other', 
+                    'phone' => '',
+                    'address' => '',
+                ]);
+            }elseif($user->isReceptionist()){
+                $user->receptionist()->create([
+                    'phone' => '',
+                    'gender' => 'other', 
+                    'date_of_birth' => now(),
+                    'address' => '',
+                    'status' => 'inactive', 
+                    'note' => '',
+                ]);
+            }
+            
+        });
     }
 }

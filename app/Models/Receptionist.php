@@ -13,6 +13,11 @@ class Receptionist extends Model
     protected $fillable = [
         'user_id',
         'phone',
+        'gender',
+        'date_of_birth',
+        'address',
+        'status',
+        'note'
     ];
 
     // Quan hệ 1:1 với User
